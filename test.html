@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>polyfill for IE5.5~9 doesn't support placeholder feature</title>
+	<meta name="author" content="fsjohnhuang">
+	<meta name="version" content="v0.1">
+</head>
+<body>
+	<form>
+		<input type="text" data-placeholder="search any thing u want!" placeholder="search any thing u want!"/>
+	</form>
+	<script type="text/javascript" src="./polyfill_placeholder.js"></script>
+	<script type="text/javascript">
+		placeholder();
+	</script>
+</body>
+</html>
