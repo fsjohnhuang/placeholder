@@ -8,6 +8,12 @@
 			_factory.innerHTML = html;	
 			return _factory.firstChild;
 		};
+	var _on = function(el, evt, handler){
+		var evtPrefix = '',
+			on = el.addEventListener && 'addEventListener' || 
+				(evtPrefix = 'on') && 'attachEvent';
+		el[on](evtPrefix + evt, handler);
+	}
 	// 判断是否为W3C标准的盒子模式
 	var _isBoxModel = (function(){
 		var tmp = _$('<div style="padding-left:1px;width:1px; position: absolute;"></div>');
@@ -31,10 +37,12 @@
 	// 文本模板
 	var _fmt = function(str/*arg1,arg2...*/){
 		var args = [].slice.call(arguments, 1);
-		return str.replace(/\$\{[^}{]+\}/g, function(orig){
+		var ret = str.replace(/\$\{[^}{]+\}/g, function(orig){
 				var k = /\$\{([^}{]+)\}/.exec(orig)[1];
 				return args[k] || args[0][k] || '';
 			});
+
+		return ret;
 	};
 
 	var _getStyle = function(el, prop){
@@ -79,9 +87,10 @@
 			var h = el.offsetHeight - minuend;
 			return h + 'px';
 		};
+	var _rPos = /^\s*relative|absolute\s*$/i;
 	_get['top'] = function(el){
 			var pos = _getComputedStyle(el, 'position');
-			if (!/^\s*relative|absolute\s*$/i.test(pos)){
+			if (!_rPos.test(pos)){
 				el.style.position = 'relative';
 			}
 
@@ -89,7 +98,7 @@
 		};
 	_get['left'] = function(el){
 			var pos = _getComputedStyle(el, 'position');
-			if (!/^\s*relative|absolute\s*$/i.test(pos)){
+			if (!_rPos.test(pos)){
 				el.style.position = 'relative';
 			}
 
@@ -132,6 +141,23 @@
 	var _proc = function(el){
 		var html = _createHtml(el);
 		var phel = _$(html);
+		// 点击placeholder时，文本框获取的焦点
+		_on(phel, 'click', function(){
+			el.focus();
+		});
+		_on(el, 'keyup', function(e){
+			var evt = e || window.event, 
+				target = evt.srcElement || evt.target;
+			if (target.value === ''){
+				phel.style.display = 'inline';
+			}
+		});
+		_on(el, 'keydown', function(e){
+			var evt = e || window.event; 
+			if (evt.keyCode !== 8){
+				phel.style.display = 'none';
+			}
+		});
 		el.parentNode.appendChild(phel);
 	};
 
