@@ -1,6 +1,6 @@
 /**
  * @author fsjohnhuang
- * @version v0.1
+ * @version v0.2
  */
 ;(function(exports){
 	var _factory = document.createElement('DIV');
@@ -45,9 +45,9 @@
 		return ret;
 	};
 
-	var _getStyle = function(el, prop){
-		var get = _get[prop] || _get['default'];
-		var val = get(el, prop);
+	var _css = function(el, prop){
+		var cssHook = _cssHook[prop] || _cssHook['default'];
+		var val = cssHook(el, prop);
 
 		return val;
 	};
@@ -56,8 +56,8 @@
 		'paddingWidth': 2
 	};
 	var _tunningVal = 3;
-	var _get = {};
-	_get['width'] = _isBoxModel && 
+	var _cssHook = {};
+	_cssHook['width'] = _isBoxModel && 
 		function(el){
 			return (el.offsetWidth - 2 *_tunningVal) + 'px'; // 宽度比文本框小
 		} ||function(el){
@@ -72,7 +72,7 @@
 			var w = el.offsetWidth - minuend - 2 * _tunningVal;
 			return w + 'px';
 		};
-	_get['height'] = _get['lineHeight'] = _isBoxModel &&
+	_cssHook['height'] = _cssHook['lineHeight'] = _isBoxModel &&
 		function(el){
 			return el.offsetHeight + 'px';
 		} || function(el){
@@ -88,7 +88,7 @@
 			return h + 'px';
 		};
 	var _rPos = /^\s*relative|absolute\s*$/i;
-	_get['top'] = function(el){
+	_cssHook['top'] = function(el){
 			var pos = _getComputedStyle(el, 'position');
 			if (!_rPos.test(pos)){
 				el.style.position = 'relative';
@@ -96,7 +96,7 @@
 
 			return el.offsetTop + 'px';
 		};
-	_get['left'] = function(el){
+	_cssHook['left'] = function(el){
 			var pos = _getComputedStyle(el, 'position');
 			if (!_rPos.test(pos)){
 				el.style.position = 'relative';
@@ -104,7 +104,7 @@
 
 			return (el.offsetLeft + _tunningVal) + 'px';
 		};
-	_get['fontSize'] = function(el){
+	_cssHook['fontSize'] = function(el){
 			var val = _getComputedStyle(el, 'fontSize'), integer;
 			val = parseFloat(val), integer = parseInt(val);
 			val = val > integer ? integer + 1 : integer;
@@ -112,16 +112,17 @@
 			return val + 'px';
 		};
 
-	_get['default'] = function(el, prop){
+	_cssHook['default'] = function(el, prop){
 			return _getComputedStyle(el, prop);
 		};
 
 
-	var _tpl = '<span style="white-space:${whiteSpace};position:${position};overflow:${overflow};font-family:${fontFamily};color:${color};'+
+	var _tpl = '<span unselectable="on" style="${userSelect};white-space:${whiteSpace};position:${position};overflow:${overflow};font-family:${fontFamily};color:${color};'+
 		'top:${top};left:${left};height:${height};width:${width};font-size:${fontSize};padding:${paddingTop} 0 ${paddingBottom} ${paddingLeft};line-height:${lineHeight};">' + 
 		'${innerHTML}</span>';
 	var _createHtml = function(el){
 		var kv = {
+				'userSelect': '-webkit-user-select:none;-moz-user-select:none;-khtml-user-select:none;-ms-user-select:none;-o-user-select:none;user-select:none',
 				'whiteSpace': 'nowrap',
 				'position': 'absolute',
 				'overflow': 'hidden',
@@ -131,7 +132,7 @@
 			};
 		var props = ['top', 'left', 'height', 'width', 'fontSize', 'paddingLeft', 'paddingTop', 'paddingBottom', 'lineHeight'];
 		for (var i = 0, prop; prop = props[i++];){
-			kv[prop] = _getStyle(el, prop);
+			kv[prop] = _css(el, prop);
 		}
 		var html = _fmt(_tpl, kv);
 
