@@ -131,15 +131,19 @@
 		};
 
 
-	var _tpl = '<span unselectable="on" style="${userSelect};white-space:${whiteSpace};position:${position};overflow:${overflow};font-family:${fontFamily};color:${color};'+
-		'top:${top};left:${left};height:${height};width:${width};font-size:${fontSize};padding:${paddingTop} 0 ${paddingBottom} ${paddingLeft};line-height:${lineHeight};text-align:${textAlign};">' + 
+	var _tpl = '<span unselectable="on" style="${userSelect};white-space:${whiteSpace};' + 
+		'position:${position};display:${display};overflow:${overflow};font-family:${fontFamily};color:${color};'+
+		'top:${top};left:${left};height:${height};width:${width};font-size:${fontSize};' + 
+		'padding:${paddingTop} 0 ${paddingBottom} ${paddingLeft};line-height:${lineHeight};text-align:${textAlign};">' + 
 		'${innerHTML}</span>';
 	var _createHtml = function(el){
 		var kv = {
 				// v0.2 修复placeholder文字可被选中的bug
-				'userSelect': '-webkit-user-select:none;-moz-user-select:none;-khtml-user-select:none;-ms-user-select:none;-o-user-select:none;user-select:none',
+				'userSelect': '-webkit-user-select:none;-moz-user-select:none;-khtml-user-select:none;' +
+					'-ms-user-select:none;-o-user-select:none;user-select:none',
 				'whiteSpace': 'nowrap',
 				'position': 'absolute',
+				'display': 'inline',
 				'overflow': 'hidden',
 				'fontFamily': 'arial,sans-serif',
 				'color': placeholder.color,
@@ -155,6 +159,10 @@
 		// v0.5 修复IE5.5下placeholder位置向下方偏离的bug
 		if (isIE5){
 			kv['paddingTop'] = '0';
+		}
+		// v0.7 修复初始化placeholder时，文本框非空而出现placeholder的bug
+		if (el.value !== ''){
+			kv['display'] = 'none';
 		}
 		var html = _fmt(_tpl, kv);
 
