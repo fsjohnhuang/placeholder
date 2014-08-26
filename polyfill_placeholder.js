@@ -10,12 +10,21 @@
 			_factory.innerHTML = html;	
 			return _factory.firstChild;
 		};
-	var _on = function(el, evt, handler){
-		var evtPrefix = '',
-			on = el.addEventListener && 'addEventListener' || 
-				(evtPrefix = 'on') && 'attachEvent';
+	// 封装事件绑定方法
+	var evtPrefix = '',
+		on = document.body.addEventListener && 'addEventListener' || 
+			(evtPrefix = 'on') && 'attachEvent';
+	var _on = function(/*<el, evt, handler> or <el, evtHandlers>*/){
+		_on[arguments.length].apply(_on, arguments);
+	};
+	_on[2] = function(el, evtHandlers){
+		for (var evt in evtHandlers){
+			this[3](el, evt, evtHandlers[evt]);	
+		}
+	};
+	_on[3] = function(el, evt, handler){
 		el[on](evtPrefix + evt, handler);
-	}
+	};
 	// 判断是否为W3C标准的盒子模式
 	var _isBoxModel = (function(){
 		var tmp = _$('<div style="padding-left:1px;width:1px; position: absolute;"></div>');
@@ -154,25 +163,29 @@
 			el.focus();
 		});
 		if (isIE){
-			_on(el, 'focus', function(e){
-				phel.style.display = 'none';	
-			});
-			_on(el, 'blur', function(e){
-				var evt = e || window.event, 
-					target = evt.srcElement || evt.target;
-				phel.style.display = target.value === '' ? 'inline' : 'none';	
+			_on(el, {
+				'focus': function(e){
+					phel.style.display = 'none';	
+				},
+				'blur': function(e){
+					var evt = e || window.event, 
+						target = evt.srcElement || evt.target;
+					phel.style.display = target.value === '' ? 'inline' : 'none';	
+				}
 			});
 		}
 		else{
-			_on(el, 'keyup', function(e){
-				var evt = e || window.event, 
-					target = evt.srcElement || evt.target;
-				phel.style.display = target.value === '' ? 'inline' : 'none';	
-			});
-			_on(el, 'keydown', function(e){
-				var evt = e || window.event;
-				if (evt.keyCode !== 8){
-					phel.style.display = 'none';
+			_on(el, {
+				'keyup': function(e){
+					var evt = e || window.event, 
+						target = evt.srcElement || evt.target;
+					phel.style.display = target.value === '' ? 'inline' : 'none';	
+				},
+				'keydown': function(e){
+					var evt = e || window.event;
+					if (evt.keyCode !== 8){
+						phel.style.display = 'none';
+					}
 				}
 			});
 		}

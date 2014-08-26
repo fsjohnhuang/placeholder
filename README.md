@@ -10,6 +10,7 @@ polyfill for IE5.5~9 doesn't support placeholder feature<br/>
     <form>
 	  <input type="text" placeholder="type your name pls."/>
 	  <input type="text" placeholder="type your number pls."/>
+	  <textarea placeholder="type detail pls."></textarea>
 	</form>
 	<!--[if lte IE 9]>
 	<script type="text/javascript" charset="utf-8" src="./polyfill_placeholder.js"></script>
