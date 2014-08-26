@@ -1,7 +1,13 @@
-placeholder v0.7
+placeholder v1.0
 ===========
 
 polyfill for IE5.5~9 doesn't support placeholder feature<br/>
+**v1.0**<br/>
+支持input\[type="text"\]的placeholder特性。<br/>
+Global Setting<br/>
+`placeholder.attr`：指定placeholder特性名称，默认为data-placeholder<br/>
+`placeholder.color`：指定placeholder的文字前景色，默认为#888<br/>
+
 **usage:**<br/>
 ````
 <html>
@@ -22,6 +28,11 @@ polyfill for IE5.5~9 doesn't support placeholder feature<br/>
   </body>
 </html>
 ````
+
+##update log##<br/>
+**v1.0**<br/>
+将v0.7提升为v1.0<br/>
+
 **v0.7**<br/>
 修复初始化placeholder时，文本框非空而出现placeholder的bug<br/>
 
