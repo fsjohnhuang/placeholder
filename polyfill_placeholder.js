@@ -1,6 +1,6 @@
 /**
  * @author fsjohnhuang
- * @version v0.5
+ * @version v0.6
  */
 ;(function(exports){
 	var isIE = /msie|Trident/i.test(navigator.userAgent);
@@ -131,7 +131,7 @@
 
 
 	var _tpl = '<span unselectable="on" style="${userSelect};white-space:${whiteSpace};position:${position};overflow:${overflow};font-family:${fontFamily};color:${color};'+
-		'top:${top};left:${left};height:${height};width:${width};font-size:${fontSize};padding:${paddingTop} 0 ${paddingBottom} ${paddingLeft};line-height:${lineHeight};">' + 
+		'top:${top};left:${left};height:${height};width:${width};font-size:${fontSize};padding:${paddingTop} 0 ${paddingBottom} ${paddingLeft};line-height:${lineHeight};text-align:${textAlign};">' + 
 		'${innerHTML}</span>';
 	var _createHtml = function(el){
 		var kv = {
@@ -143,7 +143,7 @@
 				'color': placeholder.color,
 				'innerHTML': el.getAttribute(placeholder.attr)
 			};
-		var props = ['top', 'left', 'height', 'width', 'fontSize', 'paddingLeft', 'paddingTop', 'paddingBottom', 'lineHeight'];
+		var props = ['top', 'left', 'height', 'width', 'fontSize', 'paddingLeft', 'paddingTop', 'paddingBottom', 'lineHeight', 'textAlign'];
 		for (var i = 0, prop; prop = props[i++];){
 			kv[prop] = _css(el, prop);
 		}
