@@ -1,6 +1,6 @@
 /**
  * @author fsjohnhuang
- * @version v0.6
+ * @version v0.7
  */
 ;(function(exports){
 	var isIE = /msie|Trident/i.test(navigator.userAgent);
