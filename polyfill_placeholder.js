@@ -1,9 +1,10 @@
 /**
  * @author fsjohnhuang
- * @version v0.4
+ * @version v0.5
  */
 ;(function(exports){
 	var isIE = /msie|Trident/i.test(navigator.userAgent);
+	var isIE5 = isIE && (document.documentMode === 5 || !document.compatMode || document.compatMode === 'BackCompat');
 	var _factory = document.createElement('DIV');
 	var _$ = function (html){
 			_factory.innerHTML = html;	
@@ -136,6 +137,9 @@
 		var props = ['top', 'left', 'height', 'width', 'fontSize', 'paddingLeft', 'paddingTop', 'paddingBottom', 'lineHeight'];
 		for (var i = 0, prop; prop = props[i++];){
 			kv[prop] = _css(el, prop);
+		}
+		if (isIE5){
+			kv['paddingTop'] = '0';
 		}
 		var html = _fmt(_tpl, kv);
 

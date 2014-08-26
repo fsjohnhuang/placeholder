@@ -1,4 +1,4 @@
-placeholder v0.4
+placeholder v0.5
 ===========
 
 polyfill for IE5.5~9 doesn't support placeholder feature<br/>
@@ -21,6 +21,10 @@ polyfill for IE5.5~9 doesn't support placeholder feature<br/>
   </body>
 </html>
 ````
+
+**v0.5**<br/>
+修复IE5.5下placeholder位置向下方偏离的bug<br/>
+
 **v0.4**<br/>
 修复字体大小单位与相应的文本框不对应的bug<br/>
 
