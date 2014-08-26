@@ -115,7 +115,8 @@
 
 			return (el.offsetLeft + _tunningVal) + 'px';
 		};
-	var	_rUnit = /[a-z]+$/i;
+	// v0.4 修复字体大小单位与相应的文本框不对应的bug
+	var _rUnit = /[a-z]+$/i;
 	_cssHook['fontSize'] = function(el){
 			var val = _getComputedStyle(el, 'fontSize'), integer, unit;
 			unit = _rUnit.exec(val), val = parseFloat(val), integer = parseInt(val);
@@ -135,6 +136,7 @@
 		'${innerHTML}</span>';
 	var _createHtml = function(el){
 		var kv = {
+				// v0.2 修复placeholder文字可被选中的bug
 				'userSelect': '-webkit-user-select:none;-moz-user-select:none;-khtml-user-select:none;-ms-user-select:none;-o-user-select:none;user-select:none',
 				'whiteSpace': 'nowrap',
 				'position': 'absolute',
@@ -143,10 +145,14 @@
 				'color': placeholder.color,
 				'innerHTML': el.getAttribute(placeholder.attr)
 			};
-		var props = ['top', 'left', 'height', 'width', 'fontSize', 'paddingLeft', 'paddingTop', 'paddingBottom', 'lineHeight', 'textAlign'];
+		var props = ['top', 'left', 'height', 'width', 'fontSize', 'paddingLeft', 
+			'paddingTop', 'paddingBottom', 'lineHeight', 
+			// v0.6 修复placeholder与相应的文本框的text-align样式不对应的bug
+			'textAlign'];
 		for (var i = 0, prop; prop = props[i++];){
 			kv[prop] = _css(el, prop);
 		}
+		// v0.5 修复IE5.5下placeholder位置向下方偏离的bug
 		if (isIE5){
 			kv['paddingTop'] = '0';
 		}
@@ -162,6 +168,7 @@
 		_on(phel, 'click', function(){
 			el.focus();
 		});
+		// v0.3 修复在IE中使用中文输入法时placeholder闪烁的bug
 		if (isIE){
 			_on(el, {
 				'focus': function(e){
