@@ -36,5 +36,5 @@ polyfill for IE5.5~9 doesn't support placeholder feature<br/>
 修复placeholder文字可被选中的bug<br/>
 
 **v0.1**<br/>
-初步完成功能<br/>
+完成input\[type="text"\]元素placeholder特性的基本功能<br/>
 
