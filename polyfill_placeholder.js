@@ -1,6 +1,6 @@
 /**
  * @author fsjohnhuang
- * @version v0.3
+ * @version v0.4
  */
 ;(function(exports){
 	var isIE = /msie|Trident/i.test(navigator.userAgent);
@@ -105,12 +105,14 @@
 
 			return (el.offsetLeft + _tunningVal) + 'px';
 		};
+	var	_rUnit = /[a-z]+$/i;
 	_cssHook['fontSize'] = function(el){
-			var val = _getComputedStyle(el, 'fontSize'), integer;
-			val = parseFloat(val), integer = parseInt(val);
+			var val = _getComputedStyle(el, 'fontSize'), integer, unit;
+			unit = _rUnit.exec(val), val = parseFloat(val), integer = parseInt(val);
+			unit = unit && unit[0] || 'px';
 			val = val > integer ? integer + 1 : integer;
 
-			return val + 'px';
+			return val + unit;
 		};
 
 	_cssHook['default'] = function(el, prop){

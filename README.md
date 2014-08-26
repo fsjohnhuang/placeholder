@@ -1,4 +1,4 @@
-placeholder v0.3
+placeholder v0.4
 ===========
 
 polyfill for IE5.5~9 doesn't support placeholder feature<br/>
@@ -21,6 +21,9 @@ polyfill for IE5.5~9 doesn't support placeholder feature<br/>
   </body>
 </html>
 ````
+**v0.4**<br/>
+修复字体大小单位与相应的文本框不对应的bug<br/>
+
 **v0.3**<br/>
 修复在IE中使用中文输入法时placeholder闪烁的bug<br/>
 
