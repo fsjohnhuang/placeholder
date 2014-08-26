@@ -3,19 +3,18 @@
 <head>
 	<title>polyfill for IE5.5~9 doesn't support placeholder feature</title>
 	<meta name="author" content="fsjohnhuang">
-	<meta name="version" content="v0.1">
+	<meta name="version" content="v0.2">
 </head>
 <body>
 	<form>
-	<!--[if IE]>
-		<input type="text" data-placeholder="search any thing u want!" placeholder="search any thing u want!"/>
-	<![endif]-->
-		<input type="text" data-placeholder="search any thing u want!xingasidgsa" style="padding-right:20px;height: 100px;font-size:30px;"/>
-		<input type="text" placeholder="search any thing u want!" style="padding-right:20px;height: 100px;font-size:30px;"/>
+	  <input type="text" data-placeholder="type your name pls."/>
+	  <input type="text" placeholder="type your number pls."/>
 	</form>
+	
 	<script type="text/javascript" charset="utf-8" src="./polyfill_placeholder.js"></script>
 	<script type="text/javascript">
-		placeholder();
+	  placeholder();
 	</script>
+	
 </body>
 </html>

@@ -1,8 +1,9 @@
 /**
  * @author fsjohnhuang
- * @version v0.2
+ * @version v0.3
  */
 ;(function(exports){
+	var isIE = /msie|Trident/i.test(navigator.userAgent);
 	var _factory = document.createElement('DIV');
 	var _$ = function (html){
 			_factory.innerHTML = html;	
@@ -146,19 +147,29 @@
 		_on(phel, 'click', function(){
 			el.focus();
 		});
-		_on(el, 'keyup', function(e){
-			var evt = e || window.event, 
-				target = evt.srcElement || evt.target;
-			if (target.value === ''){
-				phel.style.display = 'inline';
-			}
-		});
-		_on(el, 'keydown', function(e){
-			var evt = e || window.event; 
-			if (evt.keyCode !== 8){
-				phel.style.display = 'none';
-			}
-		});
+		if (isIE){
+			_on(el, 'focus', function(e){
+				phel.style.display = 'none';	
+			});
+			_on(el, 'blur', function(e){
+				var evt = e || window.event, 
+					target = evt.srcElement || evt.target;
+				phel.style.display = target.value === '' ? 'inline' : 'none';	
+			});
+		}
+		else{
+			_on(el, 'keyup', function(e){
+				var evt = e || window.event, 
+					target = evt.srcElement || evt.target;
+				phel.style.display = target.value === '' ? 'inline' : 'none';	
+			});
+			_on(el, 'keydown', function(e){
+				var evt = e || window.event;
+				if (evt.keyCode !== 8){
+					phel.style.display = 'none';
+				}
+			});
+		}
 		el.parentNode.appendChild(phel);
 	};
 
