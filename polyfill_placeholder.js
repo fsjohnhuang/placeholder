@@ -1,6 +1,6 @@
 /**
  * @author fsjohnhuang
- * @version v1.2
+ * @version v1.3
  */
 ;(function(exports){
 	var rUnit = /[a-z]+$/i;
@@ -312,6 +312,10 @@
 					}
 				}
 			});
+			// 设置用户不能改变textarea大小
+			if (el.tagName.toLowerCase() === 'textarea'){
+				el.style.resize = 'none';
+			}
 		}
 		el.parentNode.appendChild(phel);
 	};

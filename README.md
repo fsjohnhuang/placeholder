@@ -1,4 +1,4 @@
-placeholder v1.2
+placeholder v1.3
 ===========
 
 polyfill for IE5.5~9 doesn't support placeholder feature<br/>
@@ -30,6 +30,10 @@ Global Setting<br/>
 ````
 
 ##update log<br/>
+**v1.3**<br/>
+设置FF、Chrome和Safari下用户无法改变textarea大小。
+
+
 **v1.2**<br/>
 参考mass Framework完善`getType`方法
 
