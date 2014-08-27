@@ -1,13 +1,12 @@
 /**
  * @author fsjohnhuang
- * @version v1.1
+ * @version v1.2
  */
 ;(function(exports){
 	var rUnit = /[a-z]+$/i;
 	var rPos = /^\s*relative|absolute\s*$/i;
 	var rTagName = /input|textarea/i;
 	var rNative = /[^}{}]+\{\s*\[native code\]\s*\}/i;
-	var rType = /\[object\s+((?:[\w-]|[^\x00-\xa0])+)\]/i;
 
 	// OperaMini v7.0 貌似支持placeholder，实际是不支持的。
 	var isOperaMini = 'operamini' in window;
@@ -30,18 +29,39 @@
 
 		return array;
 	};
+	// 参考mass Framework
+	// 罗列出[[class]]与最终表达的类型不同的项目
+	var cls2Type = {
+		'[object HTMLDocument]': 'Document',
+		'[object HTMLCollection]': 'NodeList',
+		'[object StaticNodeList]': 'NodeList',
+		'[object IXMLDOMNodeList]': 'NodeList',
+		'[object DOMWindow]': 'Window',
+		'[object global]': 'Window',
+		'null': 'Null',
+		'undefined': 'Undefined',
+		'NaN': 'NaN'
+	};
+	// 罗列出[[class]]与最终类型相同的项目
+	'Boolean String Number Function Array Date RegExp Window Document Arguments NodeList Math Navigator Screen Location History'.replace(/\S+/g,function(name){
+		cls2Type['[object ' + name + ']'] = name;
+	});
+	var toString = Object.prototype.toString;
 	var getType = function(obj){
-		var type = rType.exec(Object.prototype.toString.call(obj))[1].toLowerCase();
-		// 对IE5.5~8下window、location、null、undefined等均返回object进行修复
-		if (isLteIE8 && type === 'object'){
-			if (obj === null){
-				type = 'null';
+		var type = cls2Type[obj == null || isNaN obj ? obj  : toString.call(obj)] || node.tagName || '#';
+		if (type === '#'){
+			if (obj.document && obj.document != obj){
+				type = 'Window';
 			}
-			else if (typeof obj === 'undefined'){
-				type = 'undefined';
+			else if (obj.nodeType === 9){
+				type = 'Document';
 			}
-			else if (window === obj){
-				type = 'window';
+			// isFinite用于判断是否为有限数值
+			else if (obj.callee && isFinite(obj.length) && && !obj.slice){
+				type = 'Arguments';
+			}
+			else if (isFinite(obj.length) && rNative.test(obj.item)){
+				type = 'NodeList';
 			}
 			else if (location === obj){
 				type = 'location';			
@@ -49,11 +69,14 @@
 			else if (navigator === obj){
 				type = 'navigator';
 			}
-			else if(rNative.test(obj.getElementById)){
-				type = 'htmldocument';
-			}	
-			else if (obj.tagName){
-				type = 'html' + tagName.toLowerCase() + 'element';
+			else if (screen === obj){
+				type = 'Screen';
+			}
+			else if (history === obj){
+				type = 'History';
+			}
+			else{
+				type = toString.call(obj).slice(8, -1);
 			}
 		}
 

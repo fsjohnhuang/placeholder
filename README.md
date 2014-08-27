@@ -1,4 +1,4 @@
-placeholder v1.1
+placeholder v1.2
 ===========
 
 polyfill for IE5.5~9 doesn't support placeholder feature<br/>
@@ -30,6 +30,9 @@ Global Setting<br/>
 ````
 
 ##update log<br/>
+**v1.2**<br/>
+参考mass Framework完善`getType`方法
+
 **v1.1**<br/>
 参考[mathiasbynens/jquery-placeholder](https://github.com/mathiasbynens/jquery-placeholder)后<br/>
 新增功能：<br/>
