@@ -3,13 +3,15 @@
 <head>
 	<title>polyfill for IE5.5~9 doesn't support placeholder feature</title>
 	<meta name="author" content="fsjohnhuang">
-	<meta name="version" content="v1.0">
+	<meta name="version" content="v1.1">
 </head>
 <body>
 	<form>
 	  <input type="text" data-placeholder="type your name pls." style="height: 50px;"/>
 	  <input type="text" placeholder="type your number pls." style="height: 50px;"/>
-	  <textarea placeholder="type detail pls."></textarea>
+	  <textarea id="t1" placeholder="type detail pls.asdfsafasfsaffsdfssdfsdfasdf" style="overflow:hidden;"></textarea>
+	  <textarea id="t2" placeholder="type detail pls.asdfsafasfsaffsdfssdfsdfasdf"></textarea>
+	  <textarea data-placeholder="type detail pls.asdfsafasfsaffsdfssdfsdfasdfasdfsadfsafsadf" style="height:100px;overflow:hidden;"></textarea>
 	</form>
 	
 	<script type="text/javascript" charset="utf-8" src="./polyfill_placeholder.js"></script>

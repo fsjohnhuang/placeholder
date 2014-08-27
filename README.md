@@ -1,4 +1,4 @@
-placeholder v1.0
+placeholder v1.1
 ===========
 
 polyfill for IE5.5~9 doesn't support placeholder feature<br/>
@@ -29,7 +29,16 @@ Global Setting<br/>
 </html>
 ````
 
-##update log##<br/>
+##update log<br/>
+**v1.1**<br/>
+参考[mathiasbynens/jquery-placeholder](https://github.com/mathiasbynens/jquery-placeholder)后<br/>
+新增功能：<br/>
+1. 识别Opera Mini下对placeholder伪支持的坑<br/>
+2. 添加textarea和其他input元素的placeholder支持<br/>
+3. placeholder函数新增ctx和opts入参<br/>
+ctx用于限制placeholder起作用的范围，默认为document<br/>
+opts为placeholder属性设置，属性color为文本颜色，属性attr为placeholder属性名。<br/>
+
 **v1.0**<br/>
 将v0.7提升为v1.0<br/>
 

@@ -1,33 +1,99 @@
 /**
  * @author fsjohnhuang
- * @version v1.0
+ * @version v1.1
  */
 ;(function(exports){
+	var rUnit = /[a-z]+$/i;
+	var rPos = /^\s*relative|absolute\s*$/i;
+	var rTagName = /input|textarea/i;
+	var rNative = /[^}{}]+\{\s*\[native code\]\s*\}/i;
+	var rType = /\[object\s+((?:[\w-]|[^\x00-\xa0])+)\]/i;
+
+	// OperaMini v7.0 貌似支持placeholder，实际是不支持的。
+	var isOperaMini = 'operamini' in window;
+	var isSupport = {
+		// 检测input是否原生支持placeholder
+		'input': 'placeholder' in document.createElement('input') && !isOperaMini,
+		// 检测textarea是否原生支持placeholder
+		'textarea': 'placeholder' in document.createElement('textarea') && !isOperaMini
+	};
+
 	var isIE = /msie|Trident/i.test(navigator.userAgent);
 	var isIE5 = isIE && (document.documentMode === 5 || !document.compatMode || document.compatMode === 'BackCompat');
-	var _factory = document.createElement('DIV');
-	var _$ = function (html){
-			_factory.innerHTML = html;	
-			return _factory.firstChild;
+	var isLteIE8 = !+[1,];
+
+	var toArray = function(nodeList){
+		var array = [];
+		for (var i = 0, node; node = nodeList[i++];){
+			array.push(node);
+		}
+
+		return array;
+	};
+	var getType = function(obj){
+		var type = rType.exec(Object.prototype.toString.call(obj))[1].toLowerCase();
+		// 对IE5.5~8下window、location、null、undefined等均返回object进行修复
+		if (isLteIE8 && type === 'object'){
+			if (obj === null){
+				type = 'null';
+			}
+			else if (typeof obj === 'undefined'){
+				type = 'undefined';
+			}
+			else if (window === obj){
+				type = 'window';
+			}
+			else if (location === obj){
+				type = 'location';			
+			}
+			else if (navigator === obj){
+				type = 'navigator';
+			}
+			else if(rNative.test(obj.getElementById)){
+				type = 'htmldocument';
+			}	
+			else if (obj.tagName){
+				type = 'html' + tagName.toLowerCase() + 'element';
+			}
+		}
+
+		return type;
+	};
+	// 参考jQuery 1.9
+	// plain object是指通过{}和new Object()方式创建的js对象
+	var isPlainObj = function(obj){
+		if (getType(obj) !== 'object' || obj === window || obj.nodeType){
+			return false;
+		}
+		if (obj.constructor && !obj.constructor.prototype.hasOwnProperty('isPrototypeOf')){
+			return false;
+		}
+
+		return true;
+	};
+	var dom_factory = document.createElement('DIV');
+	var dom = function (html){
+			dom_factory.innerHTML = html;	
+			return dom_factory.firstChild;
 		};
 	// 封装事件绑定方法
 	var evtPrefix = '',
-		on = document.body.addEventListener && 'addEventListener' || 
+		evtListener = document.body.addEventListener && 'addEventListener' || 
 			(evtPrefix = 'on') && 'attachEvent';
-	var _on = function(/*<el, evt, handler> or <el, evtHandlers>*/){
-		_on[arguments.length].apply(_on, arguments);
+	var on = function(/*<el, evt, handler> or <el, evtHandlers>*/){
+		on[arguments.length].apply(on, arguments);
 	};
-	_on[2] = function(el, evtHandlers){
+	on[2] = function(el, evtHandlers){
 		for (var evt in evtHandlers){
 			this[3](el, evt, evtHandlers[evt]);	
 		}
 	};
-	_on[3] = function(el, evt, handler){
-		el[on](evtPrefix + evt, handler);
+	on[3] = function(el, evt, handler){
+		el[evtListener](evtPrefix + evt, handler);
 	};
 	// 判断是否为W3C标准的盒子模式
-	var _isBoxModel = (function(){
-		var tmp = _$('<div style="padding-left:1px;width:1px; position: absolute;"></div>');
+	var isBoxModel = (function(){
+		var tmp = dom('<div style="padding-left:1px;width:1px; position: absolute;"></div>');
 		document.body.appendChild(tmp);
 		var ret = tmp.offsetWidth === 1;
 		document.body.removeChild(tmp);
@@ -35,7 +101,7 @@
 		return ret;
 	}());
 	// 获取计算后的样式值
-	var _getComputedStyle = function(el, prop){
+	var getComputedStyle = function(el, prop){
 		var kv ;
 		if (el.currentStyle){
 			kv =  el.currentStyle;
@@ -46,7 +112,7 @@
 		return kv[prop];
 	}
 	// 文本模板
-	var _fmt = function(str/*arg1,arg2...*/){
+	var fmt = function(str/*arg1,arg2...*/){
 		var args = [].slice.call(arguments, 1);
 		var ret = str.replace(/\$\{[^}{]+\}/g, function(orig){
 				var k = /\$\{([^}{]+)\}/.exec(orig)[1];
@@ -56,8 +122,8 @@
 		return ret;
 	};
 
-	var _css = function(el, prop){
-		var cssHook = _cssHook[prop] || _cssHook['default'];
+	var css = function(el, prop){
+		var cssHook = cssHooks[prop] || cssHooks['default'];
 		var val = cssHook(el, prop);
 
 		return val;
@@ -66,24 +132,33 @@
 		'borderWidth': 1,
 		'paddingWidth': 2
 	};
-	var _tunningVal = 3;
-	var _cssHook = {};
-	_cssHook['width'] = _isBoxModel && 
+	var tunningVal = 3;
+	var cssHooks = {};
+	cssHooks['width'] = isBoxModel && 
 		function(el){
-			return (el.offsetWidth - 2 *_tunningVal) + 'px'; // 宽度比文本框小
+			return (el.offsetWidth - 2 * tunningVal) + 'px'; // 宽度比文本框小
 		} ||function(el){
 			var minuend = 0;
 			var props = ['border', 'padding'], dirs = ['Left', 'Right'];
 			for (var i = 0, prop; prop = props[i++];){
 				for (var j = 0, dir; dir = dirs[j++];){
-					minuend += (parseInt(_getComputedStyle(el, prop + dir)) || _default[prop + 'Width']);
+					minuend += (parseInt(getComputedStyle(el, prop + dir)) || _default[prop + 'Width']);
 				}
 			}
 
-			var w = el.offsetWidth - minuend - 2 * _tunningVal;
+			var w = el.offsetWidth - minuend - 2 * tunningVal;
 			return w + 'px';
 		};
-	_cssHook['height'] = _cssHook['lineHeight'] = _isBoxModel &&
+	cssHooks['width@textarea'] = function(el){
+		var w = parseFloat(cssHooks['width'](el));
+		var overflow = getComputedStyle(el, 'overflow');
+		if (overflow !== 'hidden'){
+			w -= 15;
+		}
+
+		return w + 'px';
+	};
+	cssHooks['height'] = cssHooks['lineHeight@input'] = isBoxModel &&
 		function(el){
 			return el.offsetHeight + 'px';
 		} || function(el){
@@ -91,70 +166,67 @@
 			var props = ['border', 'padding'], dirs = ['Top', 'Bottom'];
 			for (var i = 0, prop; prop = props[i++];){
 				for (var j = 0, dir; dir = dirs[j++];){
-					minuend += (parseInt(_getComputedStyle(el, prop + dir)) || _default[prop + 'Width']);
+					minuend += (parseInt(getComputedStyle(el, prop + dir)) || _default[prop + 'Width']);
 				}
 			}
 
 			var h = el.offsetHeight - minuend;
 			return h + 'px';
 		};
-	var _rPos = /^\s*relative|absolute\s*$/i;
-	_cssHook['top'] = function(el){
-			var pos = _getComputedStyle(el, 'position');
-			if (!_rPos.test(pos)){
+	cssHooks['top'] = function(el){
+			var pos = getComputedStyle(el, 'position');
+			if (!rPos.test(pos)){
 				el.style.position = 'relative';
 			}
 
 			return el.offsetTop + 'px';
 		};
-	_cssHook['left'] = function(el){
-			var pos = _getComputedStyle(el, 'position');
-			if (!_rPos.test(pos)){
+	cssHooks['left'] = function(el){
+			var pos = getComputedStyle(el, 'position');
+			if (!rPos.test(pos)){
 				el.style.position = 'relative';
 			}
 
-			return (el.offsetLeft + _tunningVal) + 'px';
+			return (el.offsetLeft + tunningVal) + 'px';
 		};
 	// v0.4 修复字体大小单位与相应的文本框不对应的bug
-	var _rUnit = /[a-z]+$/i;
-	_cssHook['fontSize'] = function(el){
-			var val = _getComputedStyle(el, 'fontSize'), integer, unit;
-			unit = _rUnit.exec(val), val = parseFloat(val), integer = parseInt(val);
+	cssHooks['fontSize'] = function(el){
+			var val = getComputedStyle(el, 'fontSize'), integer, unit;
+			unit = rUnit.exec(val), val = parseFloat(val), integer = parseInt(val);
 			unit = unit && unit[0] || 'px';
 			val = val > integer ? integer + 1 : integer;
 
 			return val + unit;
 		};
 
-	_cssHook['default'] = function(el, prop){
-			return _getComputedStyle(el, prop);
+	cssHooks['default'] = function(el, prop){
+			return getComputedStyle(el, prop);
 		};
 
 
-	var _tpl = '<span unselectable="on" style="${userSelect};white-space:${whiteSpace};' + 
+	var tpl = '<span unselectable="on" style="${userSelect};white-space:${whiteSpace};word-break:${wordBreak};word-wrap:${wordWrap};' + 
 		'position:${position};display:${display};overflow:${overflow};font-family:${fontFamily};color:${color};'+
 		'top:${top};left:${left};height:${height};width:${width};font-size:${fontSize};' + 
 		'padding:${paddingTop} 0 ${paddingBottom} ${paddingLeft};line-height:${lineHeight};text-align:${textAlign};">' + 
 		'${innerHTML}</span>';
-	var _createHtml = function(el){
+	var createHtml = function(el, opts){
 		var kv = {
 				// v0.2 修复placeholder文字可被选中的bug
 				'userSelect': '-webkit-user-select:none;-moz-user-select:none;-khtml-user-select:none;' +
 					'-ms-user-select:none;-o-user-select:none;user-select:none',
-				'whiteSpace': 'nowrap',
 				'position': 'absolute',
-				'display': 'inline',
 				'overflow': 'hidden',
 				'fontFamily': 'arial,sans-serif',
-				'color': placeholder.color,
-				'innerHTML': el.getAttribute(placeholder.attr)
+				'color': opts.color,
+				'innerHTML': el.getAttribute(opts.attr)
 			};
-		var props = ['top', 'left', 'height', 'width', 'fontSize', 'paddingLeft', 
-			'paddingTop', 'paddingBottom', 'lineHeight', 
+		var props = ['top', 'left', 'height', 'fontSize', 'paddingLeft', 
+			'paddingTop', 'paddingBottom',  
 			// v0.6 修复placeholder与相应的文本框的text-align样式不对应的bug
 			'textAlign'];
+		createHtml[el.tagName.toLowerCase()](kv, props);
 		for (var i = 0, prop; prop = props[i++];){
-			kv[prop] = _css(el, prop);
+			kv[prop.split('@')[0]] = css(el, prop);
 		}
 		// v0.5 修复IE5.5下placeholder位置向下方偏离的bug
 		if (isIE5){
@@ -164,21 +236,35 @@
 		if (el.value !== ''){
 			kv['display'] = 'none';
 		}
-		var html = _fmt(_tpl, kv);
+		var html = fmt(tpl, kv);
 
 		return html;
 	};
+	createHtml['input'] = function(kv, props){
+		kv['whiteSpace'] = 'nowrap'; // 强制不换行
+		kv['display'] = 'inline';
+		props.splice(props.length, 0, 'lineHeight@input');
+		props.splice(props.length, 0, 'width');
+	};
+	createHtml['textarea'] = function(kv, props){
+		kv['whiteSpace'] = 'normal';
+		kv['wordBreak'] = 'break-all'; //IE强制换行
+		kv['wordWrap'] = 'break-word'; //IE、FF和Chrome强制换行
+		kv['display'] = 'block';
+		props.splice(props.length, 0, 'lineHeight');	
+		props.splice(props.length, 0, 'width@textarea');
+	};
 
-	var _proc = function(el){
-		var html = _createHtml(el);
-		var phel = _$(html);
+	var proc = function(el, opts){
+		var html = createHtml(el, opts);
+		var phel = dom(html);
 		// 点击placeholder时，文本框获取的焦点
-		_on(phel, 'click', function(){
+		on(phel, 'click', function(){
 			el.focus();
 		});
 		// v0.3 修复在IE中使用中文输入法时placeholder闪烁的bug
 		if (isIE){
-			_on(el, {
+			on(el, {
 				'focus': function(e){
 					phel.style.display = 'none';	
 				},
@@ -190,7 +276,7 @@
 			});
 		}
 		else{
-			_on(el, {
+			on(el, {
 				'keyup': function(e){
 					var evt = e || window.event, 
 						target = evt.srcElement || evt.target;
@@ -207,14 +293,39 @@
 		el.parentNode.appendChild(phel);
 	};
 
-	exports.placeholder = function(){
-  		var els = document.getElementsByTagName('input');
-  		for (var i = 0, el; el = els[i++];){
-  			el.type === 'text' && 
-				el.getAttribute(placeholder.attr) && 
-				_proc(el);
+	var ph = exports.placeholder = function(ctx,  opts){
+		var ctxIsPlain = isPlainObj(ctx);
+		ctx = !ctxIsPlain && ctx || document;
+		opts = ctxIsPlain && ctx || opts || {};
+		opts.attr = opts.attr || placeholder.ATTR;
+		opts.color= opts.color || placeholder.COLOR;
+	
+		var els;
+		if (opts.attr === 'placeholder'){
+			if (isSupport['input'] && isSupport['textarea']) return;
+
+			if (rTagName.test(ctx.tagName)){
+				if (isSupport[ctx.tagName.toLowerCase()]) return;
+				els = [ctx];
+			}
+			else{
+				els = isSupport['input'] ? [] : toArray(ctx.getElementsByTagName('input'));
+				els = isSupport['textarea'] ? els : els.concat(toArray(ctx.getElementsByTagName('textarea')));
+			}
+		}
+		else{
+			if (rTagName.test(ctx.tagName)){
+				els = [ctx];
+			}
+			else{
+				els = toArray(ctx.getElementsByTagName('input'))
+				els = els.concat(toArray(ctx.getElementsByTagName('textarea')));
+			}
+		}
+  		for (var i = 0, el; el= els[i++];){
+			el.getAttribute(opts.attr) && proc(el, opts);
   		}
   	};
-	exports.placeholder.attr = 'data-placeholder';
-	exports.placeholder.color = '#888';
+	ph.ATTR = 'data-placeholder';
+	ph.COLOR = '#888';
 }(window));
