@@ -48,7 +48,7 @@
 	});
 	var toString = Object.prototype.toString;
 	var getType = function(obj){
-		var type = cls2Type[obj == null || isNaN obj ? obj  : toString.call(obj)] || node.tagName || '#';
+		var type = cls2Type[(obj == null || isNaN(obj)) ? obj  : toString.call(obj)] || node.tagName || '#';
 		if (type === '#'){
 			if (obj.document && obj.document != obj){
 				type = 'Window';
@@ -57,7 +57,7 @@
 				type = 'Document';
 			}
 			// isFinite用于判断是否为有限数值
-			else if (obj.callee && isFinite(obj.length) && && !obj.slice){
+			else if (obj.callee && isFinite(obj.length) && !obj.slice){
 				type = 'Arguments';
 			}
 			else if (isFinite(obj.length) && rNative.test(obj.item)){
