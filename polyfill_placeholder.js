@@ -1,6 +1,6 @@
 ﻿/**
  * @author fsjohnhuang
- * @version v1.5
+ * @version v1.6
  */
 ;(function(exports){
 	var rUnit = /[a-z]+$/i;
@@ -210,16 +210,30 @@
 			};
 		var props = [{ 
 				prop: 'left', getVal: function(el){
+					// v1.6修复FF31.0 for linux borderLeft为空字符引起placeholder偏左的bug
 					var bl = parseInt(css(el, 'borderLeft')) || 0,
+						br = parseInt(css(el, 'borderRight')) || 0,
 						pl = parseInt(css(el, 'paddingLeft')) || 0,
-						left = parseInt(css(el, 'left')) || 0;
+						pr = parseInt(css(el, 'paddingRight')) || 0,
+						left = parseInt(css(el, 'left')) || 0,
+						dw = el.offsetWidth - el.clientWidth;
+					if (bl + br + pl + pr !== dw){
+						return (dw/2 + left) + 'px';
+					}
 					return (left + bl + pl) + 'px';
 				}	
 			}, {
 				prop: 'top', getVal: function(el){
+					// v1.6修复FF31.0 for linux borderTop为空字符引起placeholder偏上的bug
 					var bt = parseInt(css(el, 'borderTop')) || 0,
+						bb = parseInt(css(el, 'borderBottom')) || 0,
 						pt = parseInt(css(el, 'paddingTop')) || 0,
-						top = parseInt(css(el, 'top')) || 0;
+						pb = parseInt(css(el, 'paddingBottom')) || 0,
+						top = parseInt(css(el, 'top')) || 0,
+						dh = el.offsetHeight - el.clientHeight;
+					if (bt + bb + pt + pb !== dh){
+						return (dh/2 + top) + 'px';
+					}
 					return (top + bt + pt) + 'px';
 				}
 			}, {
@@ -282,11 +296,6 @@
 	};
 
 	var proc = function(el, opts){
-		// v1.4 设置el的position为relative
-		if (!rPos.test(getComputedStyle(el, 'position'))){
-			el.style.position = 'relative';
-		}
-
 		var html = createHtml(el, opts);
 		var phel = dom(html);
 		// 点击placeholder时，文本框获取的焦点

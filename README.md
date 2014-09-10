@@ -1,4 +1,4 @@
-﻿placeholder v1.3
+﻿placeholder v1.6
 ===========
 
 polyfill for IE5.5~9 doesn't support placeholder feature<br/>
@@ -30,6 +30,9 @@ Global Setting<br/>
 ````
 
 ##update log<br/>
+**v1.6**<br/>
+修复FF31.0 for linux下因获取input和textarea的borderLeft,borderTop为空字符串时，导致placeholder偏左偏上的bug<br/>
+
 **v1.5**<br/>
 修复设置placeholder的top、left、height和width时出现误差的bug<br/>
 修复剪裁texarea过长的placeholder内容的bug<br/>
