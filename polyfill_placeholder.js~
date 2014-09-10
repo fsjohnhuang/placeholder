@@ -136,6 +136,8 @@
 	}
 	// 文本模板
 	var fmt = function(str/*arg1,arg2...*/){
+		if (arguments.length <= 1) return str;
+
 		var args = [].slice.call(arguments, 1);
 		var ret = str.replace(/\$\{[^}{]+\}/g, function(orig){
 				var k = /\$\{([^}{]+)\}/.exec(orig)[1];
@@ -191,7 +193,7 @@
 
 
 	var tpl = '<span unselectable="on" style="${userSelect};white-space:${whiteSpace};word-break:${wordBreak};word-wrap:${wordWrap};' + 
-		'position:${position};display:${display};overflow:${overflow};font-family:${fontFamily};color:${color};'+
+		'position:${position};display:${display};overflow:${overflow};overflow-y:${overflow-y};font-family:${fontFamily};color:${color};'+
 		'top:${top};left:${left};height:${height};width:${width};font-size:${fontSize};' + 
 		'padding:${paddingTop} 0 ${paddingBottom} ${paddingLeft};line-height:${lineHeight};text-align:${textAlign};">' + 
 		'${innerHTML}</span>';
@@ -206,13 +208,50 @@
 				'color': opts.color,
 				'innerHTML': el.getAttribute(opts.attr)
 			};
-		var props = ['top', 'left', 'height', 'fontSize', 'paddingLeft', 
+		var props = [{ 
+				prop: 'left', getVal: function(el){
+					var bl = parseInt(css(el, 'borderLeft')) || 0,
+						pl = parseInt(css(el, 'paddingLeft')) || 0,
+						left = parseInt(css(el, 'left')) || 0;
+					return (left + bl + pl) + 'px';
+				}	
+			}, {
+				prop: 'top', getVal: function(el){
+					var bt = parseInt(css(el, 'borderTop')) || 0,
+						pt = parseInt(css(el, 'paddingTop')) || 0,
+						top = parseInt(css(el, 'top')) || 0;
+					return (top + bt + pt) + 'px';
+				}
+			}, {
+				prop: 'height', getVal: function(el){
+					var pt = parseInt(css(el, 'paddingTop')) || 0,
+						pb = parseInt(css(el, 'paddingBottom')) || 0,
+						h = parseInt(css(el, 'height')) || 0;
+					return (h - pt - pb) + 'px';
+				}
+			}, 'fontSize', 'paddingLeft', 
 			'paddingTop', 'paddingBottom',  
+			// v1.4 textarea使用公用width csshook即可
+			{ 
+				prop: 'width', getVal: function(el){
+					var pl = parseInt(css(el, 'paddingLeft')) || 0,
+						pr = parseInt(css(el, 'paddingRight')) || 0,
+						w = parseInt(css(el, 'width')) || 0;
+					return (w - pl - pr) + 'px';
+				}
+			},
 			// v0.6 修复placeholder与相应的文本框的text-align样式不对应的bug
 			'textAlign'];
 		createHtml[el.tagName.toLowerCase()](kv, props);
 		for (var i = 0, prop; prop = props[i++];){
-			kv[prop.split('@')[0]] = css(el, prop);
+			// v1.5修复placeholder在设置left，top等属性时没有考虑input,textarea的border宽度，
+			// 导致placeholder贴近input,textarea左侧边框的bug
+			if (typeof prop !== 'string'){
+				kv[prop.prop.split('@')[0]] = prop.getVal(el);
+			}
+			else{
+				kv[prop.split('@')[0]] = css(el, prop);
+			}
 		}
 		// v0.5 修复IE5.5下placeholder位置向下方偏离的bug
 		if (isIE5){
@@ -229,17 +268,16 @@
 	createHtml['input'] = function(kv, props){
 		kv['whiteSpace'] = 'nowrap'; // 强制不换行
 		kv['display'] = 'inline';
+		kv['overflow-y'] = 'hidden';
 		props.splice(props.length, 0, 'lineHeight@input');
-		props.splice(props.length, 0, 'width');
 	};
 	createHtml['textarea'] = function(kv, props){
 		kv['whiteSpace'] = 'normal';
 		kv['wordBreak'] = 'break-all'; //IE强制换行
 		kv['wordWrap'] = 'break-word'; //IE、FF和Chrome强制换行
 		kv['display'] = 'block';
+		kv['overflow-y'] = 'auto';
 		props.splice(props.length, 0, 'lineHeight');	
-		// v1.4 textarea使用公用width csshook即可
-		props.splice(props.length, 0, 'width');
 	};
 
 	var proc = function(el, opts){
