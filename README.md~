@@ -31,8 +31,7 @@ Global Setting<br/>
 
 ##update log<br/>
 **v1.5**<br/>
-修复设置placeholder的top、left、height和width时出现误差的bug<br/>
-修复剪裁texarea过长的placeholder内容的bug<br/>
+设置FF、Chrome和Safari下用户无法改变textarea大小。
 
 **v1.4**<br/>
 使用el.clientWidth/Height代替el.offsetWidth/Height。<br/>
