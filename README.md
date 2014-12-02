@@ -81,3 +81,17 @@ opts为placeholder属性设置，属性color为文本颜色，属性attr为place
 **v0.1**<br/>
 完成input\[type="text"\]元素placeholder特性的基本功能<br/>
 
+## 原生placeholder的知识点
+1. IE10+开始支持placeholder<br/>
+2. IE10+的placeholder在元素获得焦点时立即消失，而Chrome和FF则是输入内容后才消失<br/>
+3. placeholder的内容无法通过`\r\n`来实现换行，但可以通过css（内容必须通过css的content属性填入才有效）手动换行<br/>
+````
+<style type="text/css">
+  #name::webkit-input-placeholder::after{
+    content: "line\Aline"; /* \A为换行符 */
+    display: block;
+    color: red;
+  }
+</style>
+<input id="name" type="text"/>
+````
